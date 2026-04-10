@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Genesys Cloud Scripting Assistant</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════
+     TOP BAR — brand + dropdown nav
+═══════════════════════════════════════════════ -->
+<div class="top-bar" id="top-bar">
+  <div class="top-bar-left">
+    <button class="nav-home-btn" onclick="showSection('home')" title="Home" aria-label="Go to Home">
+      <svg viewBox="0 0 20 20" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M10 2.5L2 9h2v8.5h5V13h2v4.5h5V9h2L10 2.5z"/></svg>
+    </button>
+    <div class="top-bar-brand">Genesys Cloud Scripting Assistant</div>
+    <div class="top-bar-nav" id="top-bar-nav">
+    <button class="nav-toggle" id="nav-toggle" onclick="toggleNav()" aria-expanded="false">
+      <svg class="nav-burger" viewBox="0 0 18 14" width="18" height="14" aria-hidden="true"><rect y="0" width="18" height="2" rx="1" fill="currentColor"/><rect y="6" width="18" height="2" rx="1" fill="currentColor"/><rect y="12" width="18" height="2" rx="1" fill="currentColor"/></svg>
+      <span id="nav-current-label">Home</span>
+      <svg class="nav-caret" viewBox="0 0 10 6" width="10" height="6" aria-hidden="true"><path d="M0 0l5 6 5-6z" fill="currentColor"/></svg>
+    </button>
+    <div class="nav-panel" id="nav-panel" role="menu">
+      <button class="nav-item nav-item--home" onclick="showSection('home');closeNav()" data-sec="home">Home</button>
+      <div class="nav-group-lbl">Builders</div>
+      <button class="nav-item" onclick="showSection('build-str');closeNav()" data-sec="build-str">String Builder</button>
+      <button class="nav-item" onclick="showSection('build-num');closeNav()" data-sec="build-num">Number Builder</button>
+      <button class="nav-item" onclick="showSection('build-bool');closeNav()" data-sec="build-bool">Boolean Builder</button>
+      <div class="nav-group-lbl">Tools</div>
+      <button class="nav-item" onclick="showSection('checker');closeNav()" data-sec="checker">Expression Checker</button>
+      <button class="nav-item" onclick="showSection('reference');closeNav()" data-sec="reference">Reference Guide</button>
+      <button class="nav-item" onclick="showSection('generator');closeNav()" data-sec="generator">Script Generator</button>
+
+    </div>
+  </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION: HOME (smart prompt + quick access)
+═══════════════════════════════════════════════ -->
+<div class="section active" id="section-home">
+<div class="main">
+
+  <div class="home-hero">
+    <div class="home-hero-title">Genesys Cloud Scripting Assistant</div>
+    <div class="home-hero-sub">Scripting tools and reference for Genesys Cloud developers</div>
+  </div>
+
+  <!-- Smart prompt -->
+  <div class="home-prompt-card">
+    <div class="home-prompt-label">What are you building?</div>
+    <div class="home-prompt-sub">Describe what you need in plain language — we'll point you to the right tool.</div>
+    <div class="home-prompt-row">
+      <textarea id="home-input" class="home-input" rows="2"
+        placeholder="e.g. I need to combine a customer's first and last name into a single display label…"
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();suggestPath();}"></textarea>
+      <button class="home-go-btn" onclick="suggestPath()">Find My Tools &#8594;</button>
+    </div>
+    <div id="home-suggestions"></div>
+  </div>
+
+  <!-- Quick-access tool grid -->
+  <div class="home-section-label">Quick Access</div>
+  <div class="home-tool-grid">
+    <button class="home-tool-card" onclick="showSection('build-str')">
+      <div class="htc-icon htc-str">STR</div>
+      <div class="htc-name">String Builder</div>
+      <div class="htc-desc">Combine, format, and manipulate text values</div>
+    </button>
+    <button class="home-tool-card" onclick="showSection('build-num')">
+      <div class="htc-icon htc-num">NUM</div>
+      <div class="htc-name">Number Builder</div>
+      <div class="htc-desc">Math, conversions, and numeric expressions</div>
+    </button>
+    <button class="home-tool-card" onclick="showSection('build-bool')">
+      <div class="htc-icon htc-bool">BOOL</div>
+      <div class="htc-name">Boolean Builder</div>
+      <div class="htc-desc">Conditions, comparisons, and logical checks</div>
+    </button>
+    <button class="home-tool-card" onclick="showSection('checker')">
+      <div class="htc-icon htc-chk">CHK</div>
+      <div class="htc-name">Expression Checker</div>
+      <div class="htc-desc">Validate and debug your expressions</div>
+    </button>
+    <button class="home-tool-card" onclick="showSection('reference')">
+      <div class="htc-icon htc-ref">REF</div>
+      <div class="htc-name">Reference Guide</div>
+      <div class="htc-desc">All functions, operators, and syntax in one place</div>
+    </button>
+    <button class="home-tool-card" onclick="showSection('generator')">
+      <div class="htc-icon htc-gen">GEN</div>
+      <div class="htc-name">Script Generator</div>
+      <div class="htc-desc">Wizard-driven builder that outputs an uploadable .script file</div>
+    </button>
+
+  </div>
+
+</div>
+</div>
+
+
+
+<!-- ═══════════════════════════════════════════════
+     SECTION 2: STRING BUILDER
+═══════════════════════════════════════════════ -->
+<div class="section" id="section-build-str">
+<div class="main">
+  <div class="sh">Select your string variable type</div>
+  <div class="vt-tabs">
+    <button class="vt-tab active" id="strtab-basic" onclick="setStrVT('basic')">&#128230; Basic String</button>
+    <button class="vt-tab" id="strtab-dyn" onclick="setStrVT('dynStr')">&#9889; Dynamic String</button>
+    <button class="vt-tab" id="strtab-list" onclick="setStrVT('list')">&#128203; String List</button>
+  </div>
+  <div class="vt-info str" id="str-vt-info"></div>
+  <div class="wizard-card">
+    <div class="wizard-title">&#128161; Step 1 — What are you trying to accomplish?</div>
+    <div class="wizard-sub">Select your scenario — the builder will highlight the best expression type and pre-fill example values.</div>
+    <div class="scn-grid" id="str-scn-grid"></div>
+  </div>
+  <div class="sh">Quick-Start Templates</div>
+  <div class="tg" id="str-tmpl-grid"></div>
+  <div class="sh">Step 2 — Choose an expression type</div>
+  <div class="bcard">
+    <div class="sth"><div class="stn">2</div><div><div class="stitle">What do you want to do?</div><div class="ssub" id="str-step2sub">Browse all available expression types</div></div></div>
+    <div class="type-grid" id="str-type-grid"></div>
+  </div>
+  <div class="bcard" id="str-s2card" style="display:none">
+    <div class="sth"><div class="stn">3</div><div><div class="stitle">Fill in the details</div><div class="ssub" id="str-s2sub">Answer the plain-English questions below</div></div></div>
+    <div id="str-bfields"></div>
+  </div>
+  <div class="exr" id="str-exr" style="display:none">
+    <div class="exrl">Your generated expression</div>
+    <div class="exbox" id="str-bout"><span class="exph">Fill in the fields above to generate your expression…</span></div>
+    <div class="btn-row">
+      <button class="cpbtn" onclick="cpExpr('str-bout')">&#128203; Copy expression</button>
+      <button class="resetbtn" onclick="resetStrBuilder()">&#8635; Start over</button>
+    </div>
+  </div>
+  <div class="bdwrap" id="str-bdwrap" style="display:none">
+    <div class="bdlbl">Expression breakdown — what every part means</div>
+    <div id="str-bdcontent"><span class="bdempty">Complete the fields above to see a full breakdown.</span></div>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION 3: NUMBER BUILDER
+═══════════════════════════════════════════════ -->
+<div class="section" id="section-build-num">
+<div class="main">
+  <div class="sh">Select your number variable type</div>
+  <div class="vt-tabs">
+    <button class="vt-tab active" id="numtab-basic" onclick="setNumVT('basic')">&#128230; Basic Number</button>
+    <button class="vt-tab" id="numtab-dyn" onclick="setNumVT('dynNum')">&#9889; Dynamic Number</button>
+    <button class="vt-tab" id="numtab-list" onclick="setNumVT('list')">&#128203; Number List</button>
+  </div>
+  <div class="vt-info num" id="num-vt-info"></div>
+  <div class="wizard-card">
+    <div class="wizard-title">&#128161; Step 1 — What are you trying to accomplish?</div>
+    <div class="wizard-sub">Select your scenario to get a recommendation and pre-filled values.</div>
+    <div class="scn-grid" id="num-scn-grid"></div>
+  </div>
+  <div class="sh">Quick-Start Templates</div>
+  <div class="tg" id="num-tmpl-grid"></div>
+  <div class="sh">Step 2 — Choose an expression type</div>
+  <div class="bcard">
+    <div class="sth"><div class="stn">2</div><div><div class="stitle">What do you want to do?</div><div class="ssub" id="num-step2sub">Browse all expression types</div></div></div>
+    <div class="type-grid" id="num-type-grid"></div>
+  </div>
+  <div class="bcard" id="num-s2card" style="display:none">
+    <div class="sth"><div class="stn">3</div><div><div class="stitle">Fill in the details</div><div class="ssub" id="num-s2sub">Answer the plain-English questions below</div></div></div>
+    <div id="num-bfields"></div>
+  </div>
+  <div class="exr" id="num-exr" style="display:none">
+    <div class="exrl">Your generated expression</div>
+    <div class="exbox" id="num-bout"><span class="exph">Fill in the fields above to generate your expression…</span></div>
+    <div class="btn-row">
+      <button class="cpbtn" onclick="cpExpr('num-bout')">&#128203; Copy expression</button>
+      <button class="resetbtn" onclick="resetNumBuilder()">&#8635; Start over</button>
+    </div>
+  </div>
+  <div class="bdwrap" id="num-bdwrap" style="display:none">
+    <div class="bdlbl">Expression breakdown — what every part means</div>
+    <div id="num-bdcontent"><span class="bdempty">Complete the fields above to see a full breakdown.</span></div>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION 4: BOOLEAN BUILDER
+═══════════════════════════════════════════════ -->
+<div class="section" id="section-build-bool">
+<div class="main">
+  <div class="sh">Select your Boolean variable type</div>
+  <div class="vt-tabs">
+    <button class="vt-tab active" id="booltab-basic" onclick="setBoolVT('basic')">&#128230; Basic True/False</button>
+    <button class="vt-tab" id="booltab-dyn" onclick="setBoolVT('dynBool')">&#9889; Dynamic Boolean</button>
+    <button class="vt-tab" id="booltab-list" onclick="setBoolVT('list')">&#128203; True/False List</button>
+  </div>
+  <div class="vt-info bool" id="bool-vt-info"></div>
+  <div class="wizard-card">
+    <div class="wizard-title">&#128161; Step 1 — What are you trying to accomplish?</div>
+    <div class="wizard-sub">Select your scenario to get a recommendation and pre-filled values.</div>
+    <div class="scn-grid" id="bool-scn-grid"></div>
+  </div>
+  <div class="sh">Quick-Start Templates</div>
+  <div class="tg" id="bool-tmpl-grid"></div>
+  <div class="sh">Step 2 — Choose an expression type</div>
+  <div class="bcard">
+    <div class="sth"><div class="stn">2</div><div><div class="stitle">What do you want to do?</div><div class="ssub" id="bool-step2sub">Browse all expression types</div></div></div>
+    <div class="type-grid" id="bool-type-grid"></div>
+  </div>
+  <div class="bcard" id="bool-s2card" style="display:none">
+    <div class="sth"><div class="stn">3</div><div><div class="stitle">Fill in the details</div><div class="ssub" id="bool-s2sub">Answer the plain-English questions below</div></div></div>
+    <div id="bool-bfields"></div>
+  </div>
+  <div class="exr" id="bool-exr" style="display:none">
+    <div class="exrl">Your generated expression</div>
+    <div class="exbox" id="bool-bout"><span class="exph">Fill in the fields above to generate your expression…</span></div>
+    <div class="btn-row">
+      <button class="cpbtn" onclick="cpExpr('bool-bout')">&#128203; Copy expression</button>
+      <button class="resetbtn" onclick="resetBoolBuilder()">&#8635; Start over</button>
+    </div>
+  </div>
+  <div class="bdwrap" id="bool-bdwrap" style="display:none">
+    <div class="bdlbl">Expression breakdown — what every part means</div>
+    <div id="bool-bdcontent"><span class="bdempty">Complete the fields above to see a full breakdown.</span></div>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION: EXPRESSION CHECKER
+═══════════════════════════════════════════════ -->
+<div class="section" id="section-checker">
+<div class="main">
+  <div class="sh">Expression Checker</div>
+  <div class="rb"><div class="rh">Validate any Genesys Cloud script expression</div>
+    <div style="font-size:13px;color:var(--t2);line-height:1.55;margin-bottom:12px">Paste an expression below and the checker will verify balanced braces, quotes and parentheses, look for known issues (like the <code>math.</code> prefix that must be dropped), check against the built-in function reference, and report any problems. It will not execute the expression — this is a static analyzer.</div>
+    <div class="fgroup">
+      <label class="flabel" for="chk-input">Your expression:</label>
+      <textarea id="chk-input" class="finp" rows="5" style="font-family:var(--mo);min-height:110px;resize:vertical" placeholder='e.g.  concat("Hello, ", {{Outbound.FirstName}}, "!")' autocomplete="off" autocorrect="off" spellcheck="false"></textarea>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
+      <button class="bchk" onclick="runChecker()">Check expression</button>
+      <button class="bhint" onclick="document.getElementById('chk-input').value='';document.getElementById('chk-results').innerHTML='<span class=\'bdempty\'>Paste an expression and click Check.</span>';">Clear</button>
+    </div>
+    <div class="bdwrap" style="margin-top:18px">
+      <div class="bdl">Analysis results</div>
+      <div id="chk-results"><span class="bdempty">Paste an expression and click Check.</span></div>
+    </div>
+  </div>
+
+  <div class="sh">What the checker looks for</div>
+  <div class="rb"><div class="rh">Checks performed</div>
+    <table class="rt">
+      <tr><th>Check</th><th>What it catches</th></tr>
+      <tr><td>Balanced <code>(</code> and <code>)</code></td><td>Missing or extra parentheses — the #1 cause of "expression invalid" errors.</td></tr>
+      <tr><td>Balanced <code>{{</code> and <code>}}</code></td><td>Single curly braces, missing closing braces, or mismatched variable wrappers.</td></tr>
+      <tr><td>Balanced quotes</td><td>Unterminated string literals.</td></tr>
+      <tr><td>Known function names</td><td>Flags typos and unrecognized functions. Compares against the full built-in list.</td></tr>
+      <tr><td><code>math.</code> prefix</td><td>Flags math examples copied without dropping the <code>math.</code> prefix — a common mistake.</td></tr>
+      <tr><td>Boolean keywords</td><td>Warns when using <code>&amp;&amp;</code> / <code>||</code> / <code>!</code> where <code>AND</code> / <code>OR</code> / <code>NOT</code> are the documented keywords.</td></tr>
+      <tr><td>Variable syntax</td><td>Flags bare <code>{Variable}</code> with single braces instead of <code>{{Variable}}</code>.</td></tr>
+      <tr><td>Empty arguments</td><td>Detects empty function arguments like <code>concat( , )</code>.</td></tr>
+    </table></div>
+</div>
+</div>
+
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION 5: REFERENCE GUIDE
+═══════════════════════════════════════════════ -->
+<div class="section" id="section-reference">
+<div class="main">
+
+  <div class="sh">Variable Types</div>
+  <div class="rb"><div class="rh">The 9 variable types in Genesys Cloud scripts</div>
+    <table class="rt">
+      <tr><th>Type</th><th>Description</th><th>Expression support</th><th>Must return</th></tr>
+
+      <tr><td colspan="4" style="background:var(--s2);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--prd);padding:8px 13px">&#128203; String</td></tr>
+      <tr>
+        <td><strong>Basic String</strong></td>
+        <td>Stores a fixed piece of text. Value is set via the <strong>Set Variable</strong> action and stays fixed until an action explicitly changes it.</td>
+        <td>Set Variable action only</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td><strong>Dynamic String ⚡</strong></td>
+        <td>Computed text value. Evaluates its expression body at runtime and recalculates automatically when any referenced variable changes.</td>
+        <td>Yes — full expression body</td>
+        <td>String</td>
+      </tr>
+      <tr>
+        <td><strong>String List</strong></td>
+        <td>Stores multiple text values as comma-separated items in one field. Cannot itself be dynamic. Read items with <code>getIndexValue()</code> inside a Dynamic String; find positions with <code>indexOf()</code> inside a Dynamic Number.</td>
+        <td>No</td>
+        <td>—</td>
+      </tr>
+
+      <tr><td colspan="4" style="background:var(--s2);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--prd);padding:8px 13px">&#128290; Number</td></tr>
+      <tr>
+        <td><strong>Basic Number</strong></td>
+        <td>Stores a fixed whole number. Value is set via the <strong>Set Variable</strong> action. Supports integer assignment, simple math expressions, or copying from another numeric variable.</td>
+        <td>Set Variable action only</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td><strong>Dynamic Number ⚡</strong></td>
+        <td>Computed numeric value. Evaluates its expression body at runtime and recalculates automatically when referenced variables change. Supports the full math function library.</td>
+        <td>Yes — full expression body</td>
+        <td>Number</td>
+      </tr>
+      <tr>
+        <td><strong>Number List</strong></td>
+        <td>Stores multiple numeric values as comma-separated items in one field. Cannot be dynamic. Read items with <code>getIndexValue()</code> inside a Dynamic Number; find positions with <code>indexOf()</code> inside a Dynamic Number.</td>
+        <td>No</td>
+        <td>—</td>
+      </tr>
+
+      <tr><td colspan="4" style="background:var(--s2);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--prd);padding:8px 13px">&#9989; Boolean</td></tr>
+      <tr>
+        <td><strong>Basic True/False</strong></td>
+        <td>Stores a fixed <code>true</code> or <code>false</code> value. Set via the <strong>Set Variable</strong> action. Can be set to a literal, copied from another Boolean, or assigned via a true/false expression.</td>
+        <td>Set Variable action only</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td><strong>Dynamic Boolean ⚡</strong></td>
+        <td>Computed true/false value. Evaluates its expression body at runtime and recalculates automatically when referenced variables change. Use <code>equal()</code> rather than <code>==</code> for reliable comparisons.</td>
+        <td>Yes — full expression body</td>
+        <td>Boolean</td>
+      </tr>
+      <tr>
+        <td><strong>True/False List</strong></td>
+        <td>Stores multiple true/false values as comma-separated items. Cannot be dynamic. Read items with <code>getIndexValue()</code> inside a Dynamic Boolean; find positions with <code>indexOf()</code> inside a Dynamic Number.</td>
+        <td>No</td>
+        <td>—</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="sh">Variable Syntax &amp; Built-in Variables</div>
+  <div class="rb"><div class="rh">How to reference variables in expressions</div>
+    <table class="rt"><tr><th>Syntax / Variable</th><th>Description</th></tr>
+      <tr><td>{{VarName}}</td><td>Inserts the runtime value of any script variable. Always double curly braces. Never add spaces inside the braces.</td></tr>
+      <tr><td>{{Scripter.Agent Name}}</td><td>Logged-in agent's display name — read-only</td></tr>
+      <tr><td>{{Scripter.Agent Email}}</td><td>Agent's email address</td></tr>
+      <tr><td>{{Scripter.Agent ID}}</td><td>Agent's unique system identifier</td></tr>
+      <tr><td>{{Scripter.Interaction Id}}</td><td>Unique conversation ID — identical to conversationId in the REST API</td></tr>
+      <tr><td>{{Scripter.Customer Formatted Number}}</td><td>Customer's formatted phone number</td></tr>
+      <tr><td>{{Scripter.Interaction Type}}</td><td>Channel type: call, chat, email, callback, etc.</td></tr>
+      <tr><td>{{Scripter.Interaction State}}</td><td>Current state: alerting, connected, disconnected</td></tr>
+      <tr><td>{{Scripter.Customer Call Duration}}</td><td>How long the customer has been connected (raw duration string)</td></tr>
+      <tr><td>{{Scripter.Raw Customer Call Start Time}}</td><td>Raw call start time as a number in milliseconds — pass directly to formatDate(), no dateToMilliseconds() wrapper needed</td></tr>
+      <tr><td>{{Scripter.Raw Agent Call Start Time}}</td><td>Raw agent start time as a number in milliseconds — pass directly to formatDate()</td></tr>
+      <tr><td>{{Scripter.Queue Name}}</td><td>Name of the queue this interaction is in</td></tr>
+      <tr><td>{{Scripter.Queue ID}}</td><td>ID of the queue — useful for callback actions</td></tr>
+      <tr><td>{{Scripter.Script ID}}</td><td>ID of the current script</td></tr>
+      <tr><td>{{Scripter.Is Coaching}}</td><td>true if the agent is being coached on this interaction</td></tr>
+      <tr><td>{{Scripter.Is Barging}}</td><td>true if a supervisor is barging in on this interaction</td></tr>
+      <tr><td>{{Outbound.FirstName}}</td><td>Contact list first name (outbound campaigns)</td></tr>
+      <tr><td>{{Outbound.LastName}}</td><td>Contact list last name (outbound campaigns)</td></tr>
+      <tr><td>{{Outbound.Salutation}}</td><td>Contact list salutation — e.g. Mr., Ms., Dr.</td></tr>
+    </table></div>
+
+  <div class="sh">String Functions</div>
+  <div class="rb"><div class="rh">Manipulating text values — valid in Dynamic String variables</div>
+    <table class="rt"><tr><th>Function</th><th>Example &amp; Notes</th></tr>
+      <tr><td>concat(a,b,...)</td><td><code>concat({{FirstName}}, " ", {{LastName}})</code> — joins unlimited arguments left to right into one string</td></tr>
+      <tr><td>upper(s)</td><td><code>upper({{Status}})</code> — converts every letter to UPPERCASE</td></tr>
+      <tr><td>lower(s)</td><td><code>lower({{Input}})</code> — converts every letter to lowercase</td></tr>
+      <tr><td>trim(s)</td><td><code>trim({{CustomerInput}})</code> — removes leading and trailing whitespace only; middle spaces untouched</td></tr>
+      <tr><td>replace(s,find,rep)</td><td><code>replace({{PhoneNumber}},"-","")</code> — replaces every occurrence; leave rep empty to delete</td></tr>
+      <tr><td>substring(s,start,end)</td><td><code>substring({{Phone}},0,3)</code> — extracts by position; end position not included</td></tr>
+      <tr><td>slice(s,start,end)</td><td><code>slice({{Phone}},-4)</code> — like substring but supports negative positions from the right end</td></tr>
+      <tr><td>substr(s,start,len)</td><td><code>substr({{Account}},0,4)</code> — extracts by start position and character count (not end position)</td></tr>
+      <tr><td>indexOf(s,search)</td><td><code>indexOf({{FullName}},"Smith")</code> — returns 0-based position; -1 if not found</td></tr>
+      <tr><td>length(s)</td><td><code>length({{Notes}})</code> — returns the character count as a number</td></tr>
+    </table></div>
+
+  <div class="sh">Conditional &amp; Logic</div>
+  <div class="rb"><div class="rh">Branching, comparisons, and boolean expressions</div>
+    <table class="rt"><tr><th>Function / Operator</th><th>Example &amp; Notes</th></tr>
+      <tr><td>ifElse(cond,t,f)</td><td><code>ifElse(equal({{Tier}},"Gold"),"VIP","Standard")</code> — ternary branching function</td></tr>
+      <tr><td>equal(a,b)</td><td><code>equal({{Status}},"active")</code> — strict type + value check; more reliable than ==</td></tr>
+      <tr><td>==, !=</td><td><code>{{Status}} == "active"</code> — value-only equality; can produce unexpected results with mixed types</td></tr>
+      <tr><td>&lt;, &gt;, &lt;=, &gt;=</td><td><code>{{Score}} >= 90</code> — numeric comparison operators</td></tr>
+      <tr><td>? :</td><td><code>{{Score}} > 80 ? "Pass" : "Fail"</code> — compact JavaScript-style ternary; alternative to ifElse()</td></tr>
+      <tr><td>AND</td><td><code>equal({{IsVIP}},true) AND {{Score}} >= 90</code> — both conditions must be true</td></tr>
+      <tr><td>OR</td><td><code>{{Type}} == "call" OR {{Type}} == "callback"</code> — at least one condition must be true</td></tr>
+      <tr><td>NOT</td><td><code>NOT equal({{Status}},"closed")</code> — inverts the result of a condition</td></tr>
+    </table></div>
+
+  <div class="sh">Pattern Matching (Regex)</div>
+  <div class="rb"><div class="rh">match() and matchAll() — regular expressions in script variables</div>
+    <table class="rt"><tr><th>Function</th><th>Example &amp; Notes</th></tr>
+      <tr><td>match(s,pattern)</td><td><code>match({{ZipCode}},"^\\d{5}$")</code> — in a Dynamic Boolean returns true/false; in a Dynamic String returns matched text</td></tr>
+      <tr><td>match(s,pat,flags)</td><td><code>match({{Name}},"smith","i")</code> — use <code>i</code> flag for case-insensitive matching</td></tr>
+      <tr><td>match(s,pat,flags,group)</td><td><code>match({{Phone}},"^(\\d{3})", "", 1)</code> — capture group: 0 = whole match, 1 = first () group</td></tr>
+      <tr><td>matchAll(s,pat,flags,idx)</td><td><code>matchAll({{Notes}},"\\d+","",1)</code> — finds all matches; returns the one at index 1 (second match)</td></tr>
+    </table></div>
+
+  <div class="rb"><div class="rh">Common regex validation patterns</div>
+    <table class="rt"><tr><th>Pattern</th><th>What it validates</th></tr>
+      <tr><td>^\d{5}$</td><td>Exactly 5 digits — US ZIP code</td></tr>
+      <tr><td>^\d{10}$</td><td>Exactly 10 digits — phone number (no dashes or spaces)</td></tr>
+      <tr><td>^[^@]+@[^@]+\.[^@]+$</td><td>Basic email address format</td></tr>
+      <tr><td>^\d+$</td><td>Numbers only — any length</td></tr>
+      <tr><td>^[a-zA-Z]+$</td><td>Letters only — A–Z, no numbers or symbols</td></tr>
+      <tr><td>^[a-zA-Z0-9]{8}$</td><td>Exactly 8 letters or digits — common for account IDs</td></tr>
+      <tr><td>^\d{1,4}$</td><td>Between 1 and 4 digits — short codes or agent IDs</td></tr>
+      <tr><td>^[A-Z]{2}\d{4}$</td><td>2 uppercase letters followed by 4 digits</td></tr>
+      <tr><td>^\(\d{3}\) \d{3}-\d{4}$</td><td>US phone in (555) 867-5309 format</td></tr>
+    </table></div>
+
+  <div class="sh">Date &amp; Time Functions</div>
+  <div class="tip-box">&#128161; <strong>Important:</strong> Date variables come in two flavors. The <strong>Raw</strong> variants (e.g. <code>{{Scripter.Raw Customer Call Start Time}}</code>) are already numbers in milliseconds — pass them directly to <code>formatDate()</code>, <code>formatDateISO()</code>, and <code>formatLocaleDate()</code> with <strong>no</strong> wrapper. The <strong>non-Raw</strong> variants (e.g. <code>{{Scripter.Customer Call Start Time}}</code>) are locale-formatted strings — those need <code>dateToMilliseconds()</code> wrapped around them first. <strong>Don't mix the two</strong> — wrapping a Raw variant in <code>dateToMilliseconds()</code> will fail because that function expects a string, not a number.</div>
+  <div class="rb"><div class="rh">Formatting dates and working with timestamps</div>
+    <table class="rt"><tr><th>Function</th><th>Example &amp; Notes</th></tr>
+      <tr><td>formatDate(ms)</td><td><code>formatDate({{Scripter.Raw Customer Call Start Time}})</code> — readable string in agent's timezone. Default output: <code>01/01/2000 12:00:00 am (+00:00)</code>. Pass the Raw variant directly, no wrapper.</td></tr>
+      <tr><td>formatDate(ms, fmt)</td><td><code>formatDate({{Scripter.Raw Customer Call Start Time}}, "MM/dd/yyyy")</code> — custom format tokens: <code>MM</code> <code>dd</code> <code>yyyy</code> <code>HH</code> <code>mm</code> <code>ss</code> <code>eeee</code> <code>MMMM</code></td></tr>
+      <tr><td>formatDateISO(ms)</td><td><code>formatDateISO({{Scripter.Raw Customer Call Start Time}})</code> — ISO 8601 output e.g. <code>1999-12-31T19:00:00-05:00</code>; ideal for APIs</td></tr>
+      <tr><td>formatLocaleDate(ms)</td><td><code>formatLocaleDate({{Scripter.Raw Customer Call Start Time}})</code> — uses each agent's own system locale (US vs UK vs EU formats automatically)</td></tr>
+      <tr><td>dateToMilliseconds(s)</td><td>Converts a <strong>string</strong> date variable to ms. Use with the <strong>non-Raw</strong> variants — e.g. <code>dateToMilliseconds({{Scripter.Customer Call Start Time}})</code>. Don't use this with Raw variants — they're already numbers.</td></tr>
+      <tr><td>Add 5 minutes (Raw)</td><td><code>formatDate({{Scripter.Raw Customer Call Start Time}} + 5 * 60 * 1000)</code> — Raw is a number, so you can do arithmetic on it directly</td></tr>
+      <tr><td>Compare two Raw dates</td><td><code>{{Scripter.Raw Customer Call Start Time}} > {{Scripter.Raw Agent Call Start Time}}</code> — compare numerically, no conversion needed</td></tr>
+    </table></div>
+  <div class="rb"><div class="rh">Duration functions</div>
+    <table class="rt"><tr><th>Function</th><th>Example &amp; Notes</th></tr>
+      <tr><td>formatDuration(ms)</td><td><code>formatDuration(durationToMilliseconds({{Scripter.Customer Call Duration}}))</code> — readable e.g. <code>00:04:32</code></td></tr>
+      <tr><td>durationToMilliseconds(d)</td><td>Converts a raw duration string into milliseconds. Use for comparisons or arithmetic.</td></tr>
+      <tr><td>Countdown timer</td><td><code>formatDuration(5*60*1000 - durationToMilliseconds({{Scripter.Customer Call Duration}}))</code> — time remaining until 5-minute mark</td></tr>
+      <tr><td>Duration &gt; threshold?</td><td><code>durationToMilliseconds({{Scripter.Customer Call Duration}}) &gt; 300000</code> — true if call exceeds 5 minutes</td></tr>
+    </table></div>
+
+  <div class="sh">Math &amp; Arithmetic</div>
+  <div class="tip-box">&#128161; <strong>Numeric functions:</strong> Functions like <code>round()</code>, <code>floor()</code>, <code>ceil()</code>, <code>abs()</code>, <code>min()</code>, <code>max()</code>, <code>sqrt()</code>, <code>pow()</code>, and <code>mod()</code> are called directly in Genesys Cloud expressions — no prefix needed.</div>
+  <div class="rb"><div class="rh">Operators and numeric functions</div>
+    <table class="rt"><tr><th>Operator / Function</th><th>Example &amp; Notes</th></tr>
+      <tr><td>+, -, *, /</td><td><code>{{CallCount}} + {{TransferCount}}</code> — standard arithmetic operators</td></tr>
+      <tr><td>% (modulo)</td><td><code>{{Total}} % 2</code> — remainder after division; 0 = even, 1 = odd</td></tr>
+      <tr><td>^ (power)</td><td><code>{{Base}} ^ 2</code> — raises to a power; e.g. 2^3 = 8</td></tr>
+      <tr><td>round(n,places)</td><td><code>round({{Score}}, 2)</code> — rounds to specified decimal places; 0 = whole number</td></tr>
+      <tr><td>abs(n)</td><td><code>abs({{ScoreDelta}})</code> — absolute value; removes the negative sign</td></tr>
+      <tr><td>min(a,b)</td><td><code>min({{WaitTime}}, 300000)</code> — returns the smaller of the two values</td></tr>
+      <tr><td>max(a,b)</td><td><code>max({{WaitTime}}, 0)</code> — returns the larger of the two values</td></tr>
+      <tr><td>floor(n)</td><td><code>floor({{Score}})</code> — rounds down to nearest whole number</td></tr>
+      <tr><td>ceil(n)</td><td><code>ceil({{Score}})</code> — rounds up to nearest whole number</td></tr>
+      <tr><td>length(s)</td><td><code>length({{AccountNumber}})</code> — number of characters in a string (result is a number)</td></tr>
+      <tr><td>indexOf(s,v)</td><td><code>indexOf({{FullName}},"Smith")</code> — 0-based position; -1 if not found (result is a number)</td></tr>
+    </table></div>
+
+  <div class="sh">List Variable Operations (String, Number &amp; Boolean)</div>
+  <div class="rb"><div class="rh">Working with List variables — available for all three data types</div>
+    <table class="rt"><tr><th>Operation</th><th>Example &amp; Notes</th></tr>
+      <tr><td>getIndexValue(list,idx)</td><td><code>getIndexValue({{OptionsList}}, 0)</code> — retrieves item at position; 0 = first item. Error if index out of range. Use in a Dynamic String.</td></tr>
+      <tr><td>indexOf(list,value)</td><td><code>indexOf({{OptionsList}}, "Gold")</code> — finds position of a value; returns -1 if not found. Use in a Dynamic Number.</td></tr>
+      <tr><td>Push (Set Variable)</td><td>No expression syntax — use the Set Variable action in the script editor, choose Push to append a value to the end of the list.</td></tr>
+    </table></div>
+
+  <div class="sh">Ready-to-Use Expression Patterns</div>
+  <div class="pattern-grid">
+    <div class="pat-card"><div class="pat-name">Full customer name</div><div class="pat-expr">concat({{Outbound.Salutation}}, " ", {{Outbound.FirstName}}, " ", {{Outbound.LastName}})</div><div class="pat-desc">Produces: Mr. John Smith — from outbound contact list columns. Dynamic String.</div></div>
+    <div class="pat-card"><div class="pat-name">Agent greeting</div><div class="pat-expr">concat("Hello, ", {{Scripter.Agent Name}}, "!")</div><div class="pat-desc">Personalized greeting displaying the logged-in agent's name. Dynamic String.</div></div>
+    <div class="pat-card"><div class="pat-name">Full call summary</div><div class="pat-expr">concat("Call: ", {{Scripter.Interaction Id}}, " | Agent: ", {{Scripter.Agent Name}}, " | Type: ", {{Scripter.Interaction Type}}, " | Duration: ", formatDuration(durationToMilliseconds({{Scripter.Customer Call Duration}})))</div><div class="pat-desc">Complete call log string using 4 built-in Scripter variables. Dynamic String.</div></div>
+    <div class="pat-card"><div class="pat-name">Score tier — nested ifElse</div><div class="pat-expr">ifElse({{Score}}>=90,"Gold",ifElse({{Score}}>=70,"Silver","Bronze"))</div><div class="pat-desc">Three-tier result from a numeric score. Dynamic String.</div></div>
+    <div class="pat-card"><div class="pat-name">VIP + score combined</div><div class="pat-expr">ifElse(equal({{IsVIP}},true) AND {{Score}}>=90,"Gold VIP","Standard")</div><div class="pat-desc">Combines a boolean check and numeric comparison using AND. Dynamic String.</div></div>
+    <div class="pat-card"><div class="pat-name">Validate US zip code</div><div class="pat-expr">match({{ZipCode}},"^\d{5}$")</div><div class="pat-desc">Returns true if ZipCode is exactly 5 digits. Dynamic Boolean.</div></div>
+    <div class="pat-card"><div class="pat-name">Validate email address</div><div class="pat-expr">match({{Email}},"^[^@]+@[^@]+\.[^@]+$")</div><div class="pat-desc">Returns true if the value contains @ and a domain. Dynamic Boolean.</div></div>
+    <div class="pat-card"><div class="pat-name">Remove all dashes from phone</div><div class="pat-expr">replace({{PhoneNumber}},"-","")</div><div class="pat-desc">Strips every dash from a phone number. Leave the 3rd arg empty to delete. Dynamic String.</div></div>
+    <div class="pat-card"><div class="pat-name">Extract area code</div><div class="pat-expr">match({{PhoneNumber}},"^(\d{3})", "", 1)</div><div class="pat-desc">Extracts first 3 digits using a capture group. Dynamic String.</div></div>
+    <div class="pat-card"><div class="pat-name">Trim + uppercase</div><div class="pat-expr">upper(trim({{AccountNumber}}))</div><div class="pat-desc">Removes edge spaces then converts to uppercase. Functions nest — innermost runs first. Dynamic String.</div></div>
+    <div class="pat-card"><div class="pat-name">Format call start time</div><div class="pat-expr">formatDate({{Scripter.Raw Customer Call Start Time}})</div><div class="pat-desc">Readable call start time. The Raw variant is already in milliseconds — pass it directly. Dynamic String.</div></div>
+    <div class="pat-card"><div class="pat-name">ISO date for API</div><div class="pat-expr">formatDateISO({{Scripter.Raw Customer Call Start Time}})</div><div class="pat-desc">ISO 8601 format — 1999-12-31T19:00:00-05:00 — for REST API calls. Dynamic String.</div></div>
+    <div class="pat-card"><div class="pat-name">5-minute countdown</div><div class="pat-expr">formatDuration(5*60*1000 - durationToMilliseconds({{Scripter.Customer Call Duration}}))</div><div class="pat-desc">Readable time remaining until the call has been active 5 minutes. Dynamic String.</div></div>
+    <div class="pat-card"><div class="pat-name">Call duration in milliseconds</div><div class="pat-expr">durationToMilliseconds({{Scripter.Customer Call Duration}})</div><div class="pat-desc">Raw number of milliseconds elapsed — use for comparisons or arithmetic. Dynamic Number.</div></div>
+    <div class="pat-card"><div class="pat-name">Round score to 2 decimals</div><div class="pat-expr">round({{RawScore}}, 2)</div><div class="pat-desc">Rounds a numeric variable to 2 decimal places. Dynamic Number.</div></div>
+    <div class="pat-card"><div class="pat-name">Call exceeds 5 minutes?</div><div class="pat-expr">durationToMilliseconds({{Scripter.Customer Call Duration}}) > 300000</div><div class="pat-desc">Returns true when customer has been on call more than 5 minutes. Dynamic Boolean.</div></div>
+    <div class="pat-card"><div class="pat-name">Check account number length</div><div class="pat-expr">equal(length({{AccountNumber}}), 8)</div><div class="pat-desc">Returns true if the account number is exactly 8 characters long. Dynamic Boolean.</div></div>
+    <div class="pat-card"><div class="pat-name">Get first item from List</div><div class="pat-expr">getIndexValue({{OptionsList}}, 0)</div><div class="pat-desc">Retrieves the first item from a List variable. Use in a Dynamic String.</div></div>
+    <div class="pat-card"><div class="pat-name">Add minutes to call start</div><div class="pat-expr">formatDate({{Scripter.Raw Customer Call Start Time}} + 5 * 60 * 1000)</div><div class="pat-desc">Adds 5 minutes to the call start time and formats it as a readable date. Raw is a number, so arithmetic works directly. Dynamic String.</div></div>
+    <div class="pat-card"><div class="pat-name">Interaction type check</div><div class="pat-expr">equal({{Scripter.Interaction Type}}, "call")</div><div class="pat-desc">Returns true if the interaction is a voice call. Dynamic Boolean.</div></div>
+  </div>
+
+  <div class="sh">Operator Precedence &amp; Tips</div>
+  <div class="rb"><div class="rh">How Genesys Cloud evaluates expressions</div>
+    <table class="rt"><tr><th>Rule</th><th>Detail</th></tr>
+      <tr><td>Parentheses first</td><td>Use parentheses to control evaluation order. e.g. <code>({{A}} + {{B}}) * {{C}}</code></td></tr>
+      <tr><td>Last value assigned</td><td>In multi-line expressions, the value of the last evaluated line is assigned to the dynamic variable.</td></tr>
+      <tr><td>Type must match</td><td>Dynamic String → must return text. Dynamic Number → must return a number. Dynamic Boolean → must return true/false. Mismatches cause runtime errors.</td></tr>
+      <tr><td>equal() vs ==</td><td><code>equal()</code> checks both value AND type. <code>==</code> checks value only and can give unexpected results with mixed types. Use equal() for reliable comparisons.</td></tr>
+      <tr><td>Numeric functions</td><td>Functions like <code>round()</code>, <code>floor()</code>, <code>ceil()</code>, <code>abs()</code>, <code>min()</code>, <code>max()</code>, <code>sqrt()</code>, <code>pow()</code>, and <code>mod()</code> are called directly with no prefix.</td></tr>
+      <tr><td>Raw date variables</td><td><code>Scripter.Raw ...</code> date variants are <strong>already numbers in milliseconds</strong> — pass them directly to <code>formatDate()</code>. The non-Raw variants are locale-formatted strings and need <code>dateToMilliseconds()</code> first. Don't mix the two.</td></tr>
+      <tr><td>Semicolons or newlines</td><td>Multiple expressions can be separated by semicolons or newlines. The last one evaluated is what gets assigned to the variable.</td></tr>
+      <tr><td>Nested functions</td><td>Functions can be chained by nesting — <code>upper(trim({{Var}}))</code>. The innermost function always runs first and passes its result to the outer function.</td></tr>
+    </table></div>
+
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION: SCRIPT GENERATOR
+═══════════════════════════════════════════════ -->
+<div class="section" id="section-generator">
+<div class="main">
+
+  <div class="sh">Script Generator</div>
+
+  <!-- Scenario wizard card -->
+  <div class="wizard-card">
+    <div class="wizard-title">&#128161; What kind of script are you building?</div>
+    <div class="wizard-sub">Pick your scenario — we&#8217;ll suggest the right components and pre-fill variable names for you.</div>
+    <div class="scn-grid" id="gen-scn-grid"></div>
+  </div>
+
+  <!-- Quick-start templates -->
+  <div class="sh">Quick-Start Templates</div>
+  <div class="tg" id="gen-tmpl-grid"></div>
+
+  <!-- Step 1: Script Details -->
+  <div class="sh">Step 1 &#8212; Script Details</div>
+  <div class="bcard">
+    <div class="sth"><div class="stn">1</div><div><div class="stitle">Name your script</div><div class="ssub">This name appears in Admin &#8594; Scripts in Genesys Cloud</div></div></div>
+    <div class="fgroup">
+      <label class="flabel" for="gen-name">Script Name <span style="color:var(--red)">*</span></label>
+      <span class="fhint">&#9999;&#65039; Use a descriptive name with a version number &#8212; e.g. <strong>Inbound Tier-1 Voice v2.0</strong>. This is what agents and supervisors see in the Scripts list.</span>
+      <input class="finp" id="gen-name" type="text" placeholder="e.g. Inbound Voice Script v2.0" maxlength="80" oninput="GEN.scriptName=this.value">
+    </div>
+    <div class="fgroup">
+      <label class="flabel" for="gen-desc">Description <span style="font-size:11px;color:var(--t3);font-weight:400">(optional)</span></label>
+      <input class="finp" id="gen-desc" type="text" placeholder="e.g. Used on Tier-1 inbound queue for voice interactions" maxlength="200" oninput="GEN.scriptDesc=this.value">
+    </div>
+  </div>
+
+  <!-- Step 2: Component Type selector -->
+  <div class="sh">Step 2 &#8212; Add Components</div>
+  <div class="bcard">
+    <div class="sth"><div class="stn">2</div><div><div class="stitle">What goes on the screen?</div><div class="ssub" id="gen-type-sub">Click a component type to configure and add it to your script</div></div></div>
+    <div class="type-grid" id="gen-type-grid"></div>
+  </div>
+
+  <!-- Component config card (appears when a type is selected) -->
+  <div class="bcard" id="gen-config-card" style="display:none">
+    <div class="sth">
+      <div class="stn gen-stn-plus">&#43;</div>
+      <div><div class="stitle" id="gen-config-title">Configure Component</div><div class="ssub" id="gen-config-sub">Fill in the details, then click Add to Script</div></div>
+    </div>
+    <div id="gen-config-fields"></div>
+    <div class="btn-row" style="margin-top:14px">
+      <button class="cpbtn" onclick="genAddComponent()">&#43; Add to Script</button>
+      <button class="resetbtn" onclick="genCancelConfig()">&#215; Cancel</button>
+    </div>
+  </div>
+
+  <!-- Live component list (shown when at least 1 comp added) -->
+  <div id="gen-comp-list-wrap" style="display:none">
+    <div class="sh">Your Components <span id="gen-comp-count-badge" class="gen-count-badge"></span></div>
+    <div id="gen-comp-list"></div>
+  </div>
+
+  <!-- Step 3: Pages -->
+  <div class="sh">Step 3 &#8212; Pages</div>
+  <div class="bcard">
+    <div class="sth"><div class="stn">3</div><div><div class="stitle">Script pages</div><div class="ssub">Every script has at least one page. Add more for multi-step agent workflows.</div></div></div>
+    <div id="gen-pages-list" style="margin-bottom:10px"></div>
+    <div class="btn-row">
+      <button class="cpbtn" onclick="genAddPage()">&#43; Add Page</button>
+    </div>
+  </div>
+
+  <!-- Step 4: Variables -->
+  <div class="sh">Step 4 &#8212; Variables</div>
+  <div class="bcard">
+    <div class="sth"><div class="stn">4</div><div><div class="stitle">Script variables</div><div class="ssub">Available in expressions and mappable to Architect flow variables</div></div></div>
+    <span class="fhint" style="display:block;margin-bottom:14px">&#9999;&#65039; Mark <strong>Input</strong> for variables passed in from the Architect flow (like ANI, customer name). Mark <strong>Output</strong> for values your script sends back (like disposition codes, call result).</span>
+    <div id="gen-var-list" style="margin-bottom:10px"></div>
+    <div class="btn-row">
+      <button class="cpbtn" onclick="genAddVar()">&#43; Add Variable</button>
+    </div>
+  </div>
+
+  <!-- Output box -->
+  <div class="exr">
+    <div class="exrl">Your Generated Script File</div>
+    <div class="exbox" id="gen-json-box"><span class="exph">Click &#8220;Preview JSON&#8221; or &#8220;Download&#8221; when you&#8217;re ready&#8230;</span></div>
+    <div class="btn-row">
+      <button class="cpbtn" onclick="genPreview()">&#128065; Preview JSON</button>
+      <button class="cpbtn" style="border-color:var(--green);color:var(--green)" onclick="genDownload()">&#11015; Download .script File</button>
+      <button class="resetbtn" onclick="genReset()">&#8635; Start Over</button>
+    </div>
+  </div>
+
+  <!-- Summary / breakdown -->
+  <div class="bdwrap" id="gen-bdwrap">
+    <div class="bdlbl">Script Summary</div>
+    <div id="gen-bd-content"><span class="bdempty">Generate your script above to see a full summary here.</span></div>
+  </div>
+
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     JAVASCRIPT — ALL SECTIONS
+═══════════════════════════════════════════════ -->
+<script src="script.js"></script>
+</body>
+</html>
