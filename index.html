@@ -32,7 +32,6 @@
       <div class="nav-group-lbl">Tools</div>
       <button class="nav-item" onclick="showSection('checker');closeNav()" data-sec="checker">Expression Checker</button>
       <button class="nav-item" onclick="showSection('reference');closeNav()" data-sec="reference">Reference Guide</button>
-      <button class="nav-item" onclick="showSection('generator');closeNav()" data-sec="generator">Script Generator</button>
 
     </div>
   </div>
@@ -92,11 +91,6 @@
       <div class="htc-icon htc-ref">REF</div>
       <div class="htc-name">Reference Guide</div>
       <div class="htc-desc">All functions, operators, and syntax in one place</div>
-    </button>
-    <button class="home-tool-card" onclick="showSection('generator')">
-      <div class="htc-icon htc-gen">GEN</div>
-      <div class="htc-name">Script Generator</div>
-      <div class="htc-desc">Wizard-driven builder that outputs an uploadable .script file</div>
     </button>
 
   </div>
@@ -508,106 +502,6 @@
 </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════
-     SECTION: SCRIPT GENERATOR
-═══════════════════════════════════════════════ -->
-<div class="section" id="section-generator">
-<div class="main">
-
-  <div class="sh">Script Generator</div>
-
-  <!-- Scenario wizard card -->
-  <div class="wizard-card">
-    <div class="wizard-title">&#128161; What kind of script are you building?</div>
-    <div class="wizard-sub">Pick your scenario — we&#8217;ll suggest the right components and pre-fill variable names for you.</div>
-    <div class="scn-grid" id="gen-scn-grid"></div>
-  </div>
-
-  <!-- Quick-start templates -->
-  <div class="sh">Quick-Start Templates</div>
-  <div class="tg" id="gen-tmpl-grid"></div>
-
-  <!-- Step 1: Script Details -->
-  <div class="sh">Step 1 &#8212; Script Details</div>
-  <div class="bcard">
-    <div class="sth"><div class="stn">1</div><div><div class="stitle">Name your script</div><div class="ssub">This name appears in Admin &#8594; Scripts in Genesys Cloud</div></div></div>
-    <div class="fgroup">
-      <label class="flabel" for="gen-name">Script Name <span style="color:var(--red)">*</span></label>
-      <span class="fhint">&#9999;&#65039; Use a descriptive name with a version number &#8212; e.g. <strong>Inbound Tier-1 Voice v2.0</strong>. This is what agents and supervisors see in the Scripts list.</span>
-      <input class="finp" id="gen-name" type="text" placeholder="e.g. Inbound Voice Script v2.0" maxlength="80" oninput="GEN.scriptName=this.value">
-    </div>
-    <div class="fgroup">
-      <label class="flabel" for="gen-desc">Description <span style="font-size:11px;color:var(--t3);font-weight:400">(optional)</span></label>
-      <input class="finp" id="gen-desc" type="text" placeholder="e.g. Used on Tier-1 inbound queue for voice interactions" maxlength="200" oninput="GEN.scriptDesc=this.value">
-    </div>
-  </div>
-
-  <!-- Step 2: Component Type selector -->
-  <div class="sh">Step 2 &#8212; Add Components</div>
-  <div class="bcard">
-    <div class="sth"><div class="stn">2</div><div><div class="stitle">What goes on the screen?</div><div class="ssub" id="gen-type-sub">Click a component type to configure and add it to your script</div></div></div>
-    <div class="type-grid" id="gen-type-grid"></div>
-  </div>
-
-  <!-- Component config card (appears when a type is selected) -->
-  <div class="bcard" id="gen-config-card" style="display:none">
-    <div class="sth">
-      <div class="stn gen-stn-plus">&#43;</div>
-      <div><div class="stitle" id="gen-config-title">Configure Component</div><div class="ssub" id="gen-config-sub">Fill in the details, then click Add to Script</div></div>
-    </div>
-    <div id="gen-config-fields"></div>
-    <div class="btn-row" style="margin-top:14px">
-      <button class="cpbtn" onclick="genAddComponent()">&#43; Add to Script</button>
-      <button class="resetbtn" onclick="genCancelConfig()">&#215; Cancel</button>
-    </div>
-  </div>
-
-  <!-- Live component list (shown when at least 1 comp added) -->
-  <div id="gen-comp-list-wrap" style="display:none">
-    <div class="sh">Your Components <span id="gen-comp-count-badge" class="gen-count-badge"></span></div>
-    <div id="gen-comp-list"></div>
-  </div>
-
-  <!-- Step 3: Pages -->
-  <div class="sh">Step 3 &#8212; Pages</div>
-  <div class="bcard">
-    <div class="sth"><div class="stn">3</div><div><div class="stitle">Script pages</div><div class="ssub">Every script has at least one page. Add more for multi-step agent workflows.</div></div></div>
-    <div id="gen-pages-list" style="margin-bottom:10px"></div>
-    <div class="btn-row">
-      <button class="cpbtn" onclick="genAddPage()">&#43; Add Page</button>
-    </div>
-  </div>
-
-  <!-- Step 4: Variables -->
-  <div class="sh">Step 4 &#8212; Variables</div>
-  <div class="bcard">
-    <div class="sth"><div class="stn">4</div><div><div class="stitle">Script variables</div><div class="ssub">Available in expressions and mappable to Architect flow variables</div></div></div>
-    <span class="fhint" style="display:block;margin-bottom:14px">&#9999;&#65039; Mark <strong>Input</strong> for variables passed in from the Architect flow (like ANI, customer name). Mark <strong>Output</strong> for values your script sends back (like disposition codes, call result).</span>
-    <div id="gen-var-list" style="margin-bottom:10px"></div>
-    <div class="btn-row">
-      <button class="cpbtn" onclick="genAddVar()">&#43; Add Variable</button>
-    </div>
-  </div>
-
-  <!-- Output box -->
-  <div class="exr">
-    <div class="exrl">Your Generated Script File</div>
-    <div class="exbox" id="gen-json-box"><span class="exph">Click &#8220;Preview JSON&#8221; or &#8220;Download&#8221; when you&#8217;re ready&#8230;</span></div>
-    <div class="btn-row">
-      <button class="cpbtn" onclick="genPreview()">&#128065; Preview JSON</button>
-      <button class="cpbtn" style="border-color:var(--green);color:var(--green)" onclick="genDownload()">&#11015; Download .script File</button>
-      <button class="resetbtn" onclick="genReset()">&#8635; Start Over</button>
-    </div>
-  </div>
-
-  <!-- Summary / breakdown -->
-  <div class="bdwrap" id="gen-bdwrap">
-    <div class="bdlbl">Script Summary</div>
-    <div id="gen-bd-content"><span class="bdempty">Generate your script above to see a full summary here.</span></div>
-  </div>
-
-</div>
-</div>
 
 <!-- ═══════════════════════════════════════════════
      JAVASCRIPT — ALL SECTIONS

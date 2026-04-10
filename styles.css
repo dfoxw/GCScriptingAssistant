@@ -655,68 +655,6 @@ code{font-family:var(--mo);background:rgba(0,98,114,.08);color:var(--prd);paddin
 .htc-out{background:#0891b2;}
 .htc-name{font-size:14px;font-weight:800;color:var(--prd);margin-bottom:4px;letter-spacing:-.01em}
 .htc-desc{font-size:12px;color:var(--t2);line-height:1.45}
-.htc-gen{background:#0e7490;}
-
-/* ══════════════════════════════════════════════
-   SCRIPT GENERATOR  — uses shared design tokens
-══════════════════════════════════════════════ */
-
-/* Component list items */
-.gen-comp-item{display:flex;align-items:flex-start;gap:10px;padding:12px 16px;
-  background:var(--su);border:1px solid var(--bo);border-radius:var(--ra);
-  margin-bottom:8px;box-shadow:var(--shadow);position:relative;}
-.gen-comp-badge{width:32px;height:32px;border-radius:6px;display:flex;align-items:center;
-  justify-content:center;font-size:10px;font-weight:900;color:#fff;flex-shrink:0;margin-top:1px;}
-.gen-comp-body{flex:1;min-width:0;}
-.gen-comp-name{font-size:13px;font-weight:700;color:var(--tx);margin-bottom:2px;}
-.gen-comp-meta{font-size:11px;color:var(--t3);line-height:1.45;}
-.gen-del-btn{position:absolute;top:8px;right:10px;padding:2px 7px;font-size:13px;}
-
-/* Page and variable rows */
-.gen-list-row{display:flex;align-items:center;gap:8px;padding:9px 13px;
-  background:var(--su);border:1px solid var(--bo);border-radius:var(--ra);
-  margin-bottom:7px;box-shadow:var(--shadow);}
-.gen-list-badge{width:26px;height:26px;border-radius:5px;display:flex;align-items:center;
-  justify-content:center;font-size:9px;font-weight:900;color:#fff;flex-shrink:0;}
-.gen-badge-pg{background:var(--pr);}
-.gen-badge-var{background:#6d28d9;}
-.gen-list-row .finp{margin:0;padding:7px 10px;font-size:13px;flex:1;}
-.gen-list-row .fsel{margin:0;padding:7px 10px;font-size:12px;background:#fff;
-  border:1.5px solid var(--bo);border-radius:var(--ra);cursor:pointer;color:var(--tx);}
-.gen-list-row .fsel:focus{outline:none;border-color:var(--pr);}
-.gen-locked-tag{font-size:10px;background:var(--s2);color:var(--t3);padding:2px 7px;
-  border-radius:10px;font-weight:600;white-space:nowrap;}
-.gen-del-inline{background:none;border:none;color:var(--t3);font-size:14px;cursor:pointer;
-  padding:3px 6px;border-radius:4px;line-height:1;margin-left:4px;flex-shrink:0;}
-.gen-del-inline:hover{background:var(--redl);color:var(--red);}
-
-/* Dropdown options builder */
-.gen-dd-opts{margin-top:4px;margin-bottom:4px;}
-.gen-dd-opt-row{display:flex;gap:6px;align-items:center;margin-bottom:5px;}
-.gen-dd-opt-row .finp{margin:0;padding:7px 10px;font-size:13px;}
-.gen-dd-del-opt{background:none;border:none;color:var(--t3);font-size:14px;cursor:pointer;
-  padding:3px 6px;border-radius:4px;flex-shrink:0;}
-.gen-dd-del-opt:hover{background:var(--redl);color:var(--red);}
-.gen-add-opt{font-size:12px;color:var(--pr);background:none;border:1.5px dashed var(--bo);
-  border-radius:var(--ra);padding:5px 14px;cursor:pointer;font-family:var(--fn);transition:.14s;}
-.gen-add-opt:hover{background:var(--pl);border-color:var(--pr);}
-
-/* "+" step circle override */
-.gen-stn-plus{background:var(--green);}
-
-/* Count badge on sh */
-.gen-count-badge{display:inline-flex;align-items:center;justify-content:center;
-  background:var(--pr);color:#fff;font-size:10px;font-weight:800;border-radius:999px;
-  padding:1px 8px;margin-left:6px;vertical-align:middle;}
-
-/* Checkbox row for var input/output */
-.gen-check-row{display:flex;gap:20px;margin-top:8px;flex-wrap:wrap;}
-.gen-check-row label{display:flex;align-items:center;gap:6px;font-size:12px;
-  color:var(--t2);cursor:pointer;font-weight:600;}
-
-/* Inline two-col fields */
-.gen-2col{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-@media(max-width:520px){.gen-2col{grid-template-columns:1fr;}}
 
 @media(max-width:600px){
   .home-prompt-row{flex-direction:column}
